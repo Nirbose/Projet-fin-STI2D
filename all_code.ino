@@ -3,8 +3,7 @@
 
 LDC1612 sensor;
 
-// Rx 8 Tx 7
-SoftwareSerial bluetooth(7, 8); // Ne pas utiliser le 8 en Rx (Rx / Tx)
+SoftwareSerial bluetooth(7, 8);
 
 String message;
 
