@@ -3,7 +3,8 @@
 
 LDC1612 sensor;
 
-SoftwareSerial bluetooth(8, 9); // Ne pas utiliser le 8 en Rx (Rx / Tx)
+// Rx 8 Tx 7
+SoftwareSerial bluetooth(7, 8); // Ne pas utiliser le 8 en Rx (Rx / Tx)
 
 String message;
 
@@ -13,10 +14,10 @@ const float Dmax = 15.0;
 
 //identification des broches
 const int E1 = 3; ///vitesse moteur avant gauche MOTEUR1
-const int E3 = 6; ///vitesse moteur arriÃ¨re gauche MOTEUR3
+const int E3 = 11; ///vitesse moteur arriÃ¨re gauche MOTEUR3
 
 const int M1 = 4; /// Direction du MOTEUR1 avance si "HIGH"___ recule si "LOW"
-const int M3 = 7; ///Direction du MOTEUR3 avance si "HIGH"___ recule si "LOW"
+const int M3 = 12; ///Direction du MOTEUR3 avance si "HIGH"___ recule si "LOW"
 
 
 const int RIGHT = 0;
@@ -47,7 +48,7 @@ void loop() {
 
     message = bluetooth.read();
 
-    Serial.println(message);
+    Serial.println(bluetooth.read());
 
     u32 result_channel1 = 0;
 
@@ -89,9 +90,6 @@ void loop() {
 
     }
     
-  } else {
-    
-    Serial.println("non");  
   }
 
   delay(300);
