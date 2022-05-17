@@ -3,7 +3,8 @@
 
 LDC1612 sensor;
 
-SoftwareSerial bluetooth(7, 8);
+// Rx 8 Tx 7
+SoftwareSerial bluetooth(8, 9); // Ne pas utiliser le 8 en Rx (Rx / Tx)
 
 String message;
 
@@ -21,11 +22,13 @@ const int M3 = 12; ///Direction du MOTEUR3 avance si "HIGH"___ recule si "LOW"
 
 const int RIGHT = 0;
 const int LEFT = 1;
+
+const int SPEED = 100;
 //permet de rÃ©gler la vitesse 0=arrÃ©tÃ© et 255= vitesse max
 
 void setup() {
   Serial.begin(9600);
-  bluetooth.begin(9600);
+  bluetooth.begin(115200);
   // met les broches de 3 Ã  9 en sortie
   pinMode(E1, OUTPUT);
   pinMode(E3, OUTPUT);
@@ -42,57 +45,53 @@ void setup() {
 }
 
 void loop() {
+  s
+  u32 result_channel1 = 0;
+
+  /*shows the status of sensor.*/
+  //sensor.get_sensor_status();
+
+  /*Get channel 0 result and parse it.*/
+  sensor.get_channel_result(CHANNEL_0, &result_channel1);
+
+
+  float result = ((float)result_channel1 - (float)Vmin) / ((float)Vmax - (float)Vmin); // in %
+
+  Serial.println(result);
+
+  if (result >= 0.1) {
+    d(1, 0);
+    return;
+  }
 
   if (bluetooth.available()) {
 
     message = bluetooth.read();
 
-    Serial.println(bluetooth.read());
+    if (message.toInt() == 4) { // Stop btn
+      d(1, 0);
+    } else if (message.toInt() == 1) { // Avancée 49
 
-    u32 result_channel1 = 0;
+      d(1, SPEED);
 
-    /*shows the status of sensor.*/
-    //sensor.get_sensor_status();
+    } else if (message.toInt() == 0) { // Reculer
 
-    /*Get channel 0 result and parse it.*/
-    sensor.get_channel_result(CHANNEL_0, &result_channel1);
-
-
-    float result = ((float)result_channel1 - (float)Vmin) / ((float)Vmax - (float)Vmin);
-
-    if (result >= 0.1) {
-      analogWrite(E1, 0);
-      analogWrite(E3, 0);
-      return;
-    }
-
-    if (message.toInt() == 53) { // Stop btn
-      analogWrite(E1, 0);
-      analogWrite(E3, 0);
-    } else if (message.toInt() == 49) { // Avancée
-
-      int speed = 255 / 2;
-      d(1, speed);
-
-    } else if (message.toInt() == 52) { // Reculer
-
-      int speed = 255 / 2;
-      d(0, speed);
+      d(0, SPEED);
 
     }
 
-    if (message.toInt() == 50) {
+    if (message.toInt() == 2) {
       turn(RIGHT);
 
-    } else if (message.toInt() == 51) {
+    } else if (message.toInt() == 3) {
       turn(LEFT);
 
     }
-    
+
   }
 
   delay(300);
-  
+
 }
 
 void d(int d, int speed)
@@ -105,7 +104,7 @@ void d(int d, int speed)
 
 void turn(int t)
 {
-  Serial.println(t);
+  d(0, SPEED);
 
   digitalWrite(M1, !t);
   digitalWrite(M3, t);
