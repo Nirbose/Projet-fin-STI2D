@@ -24,16 +24,21 @@ const int RIGHT = 0;
 const int LEFT = 1;
 
 const int SPEED = 100;
-//permet de rÃ©gler la vitesse 0=arrÃ©tÃ© et 255= vitesse max
+
+const int encodeur = 2;
+int pulseCount = 0;
+
+int danger = 0;
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   bluetooth.begin(115200);
   // met les broches de 3 Ã  9 en sortie
   pinMode(E1, OUTPUT);
   pinMode(E3, OUTPUT);
   pinMode(M1, OUTPUT);
   pinMode(M3, OUTPUT);
+  attachInterrupt(digitalPinToInterrupt(encodeur), blink, CHANGE);
 
   sensor.init();
 
@@ -45,7 +50,7 @@ void setup() {
 }
 
 void loop() {
-  s
+  
   u32 result_channel1 = 0;
 
   /*shows the status of sensor.*/
@@ -57,10 +62,9 @@ void loop() {
 
   float result = ((float)result_channel1 - (float)Vmin) / ((float)Vmax - (float)Vmin); // in %
 
-  Serial.println(result);
-
   if (result >= 0.1) {
-    d(1, 0);
+    turn(RIGHT);
+    danger = 1;
     return;
   }
 
@@ -90,12 +94,11 @@ void loop() {
 
   }
 
-  delay(300);
-
 }
 
 void d(int d, int speed)
 {
+  
   digitalWrite(M1, d);
   digitalWrite(M3, d);
   analogWrite(E1, speed);
@@ -108,4 +111,33 @@ void turn(int t)
 
   digitalWrite(M1, !t);
   digitalWrite(M3, t);
+}
+
+void blink()
+{
+  if (danger) {
+    ++pulseCount;
+
+    if (pulseCount == 250) {
+      d(1, SPEED);
+    }
+
+    if (pulseCount == 750) {
+      turn(LEFT);
+    }
+
+    if (pulseCount == 1000) {
+      d(1, SPEED);
+    }
+
+    if (pulseCount == 1500) {
+       turn(LEFT);
+    }
+
+    if (pulseCount == 1750) {
+      d(1, SPEED);
+      danger = 0;
+      pulseCount = 0;
+    }
+  }
 }
