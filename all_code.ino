@@ -136,8 +136,16 @@ void blink()
 
     if (pulseCount == 1750) {
       d(1, SPEED);
+    }
+
+    if (pulseCount == 2250) {
+      turn(RIGHT);
+    }
+
+    if (pulseCount == 2600) {
+      d(1, SPEED);
       danger = 0;
-      pulseCount = 0;
+      pulseCount = 0;  
     }
   }
 }
